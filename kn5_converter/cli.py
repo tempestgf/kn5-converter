@@ -43,6 +43,11 @@ def main() -> None:
         action="store_true",
         help="Incluye mallas cuyo nombre empieza por AC_ (por defecto se omiten).",
     )
+    parser.add_argument(
+        "--dds-to-png",
+        action="store_true",
+        help="Tras extraer texturas, convierte .dds a .png en output/texture (mismo directorio).",
+    )
     args = parser.parse_args()
 
     target = os.path.abspath(args.path)
@@ -57,6 +62,7 @@ def main() -> None:
             export_format=args.format,
             verbose=args.verbose,
             skip_ac_nodes=not args.include_ac_nodes,
+            dds_to_png=args.dds_to_png,
         )
         return
 
@@ -92,6 +98,7 @@ def main() -> None:
             export_format=args.format,
             verbose=args.verbose,
             skip_ac_nodes=not args.include_ac_nodes,
+            dds_to_png=args.dds_to_png,
         )
 
 

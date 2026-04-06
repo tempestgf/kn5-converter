@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 from typing import Literal
 
+from kn5_converter.dds import convert_dds_to_png
 from kn5_converter.export_glb import export_glb
 from kn5_converter.export_obj import export_obj
 from kn5_converter.parser import read_kn5
@@ -19,7 +20,8 @@ def convert_kn5(
     export_format: ExportFormat = "obj",
     verbose: bool = False,
     skip_ac_nodes: bool = True,
-) -> dict[str, str | list[str]]:
+    dds_to_png: bool = False,
+) -> dict[str, str | list[str] | dict[str, int]]:
     """
     Convierte un archivo .kn5 extrayendo texturas y generando OBJ/MTL y/o GLB.
 
@@ -35,12 +37,16 @@ def convert_kn5(
         Si True, imprime progreso de lectura del KN5.
     skip_ac_nodes
         Si True, omite geometría cuyo nombre empieza por ``AC_`` (comportamiento del panel web).
+    dds_to_png
+        Si True, tras extraer texturas convierte cada ``.dds`` en ``.png`` en la misma carpeta
+        ``output/texture`` (como el flujo del panel web), sin sobrescribir PNG existentes.
 
     Returns
     -------
     dict
         Claves ``output_dir``, ``obj`` (ruta .obj si aplica), ``glb`` (ruta .glb si aplica),
         ``textures`` (lista de nombres de texturas embebidas en el KN5).
+        Si ``dds_to_png`` es True, ``dds_png`` contiene ``converted``, ``skipped``, ``errors``.
     """
     kn5_path = os.path.abspath(kn5_path)
     if not os.path.isfile(kn5_path):
@@ -53,7 +59,7 @@ def convert_kn5(
 
     texture_names, materials, meshes = read_kn5(kn5_path, output_dir, verbose=verbose)
 
-    result: dict[str, str | list[str]] = {
+    result: dict[str, str | list[str] | dict[str, int]] = {
         "output_dir": output_dir,
         "textures": texture_names,
     }
@@ -72,5 +78,11 @@ def convert_kn5(
             skip_ac_nodes=skip_ac_nodes,
         )
         result["glb"] = glb_path
+
+    if dds_to_png:
+        tex_dir = os.path.join(output_dir, "texture")
+        if os.path.isdir(tex_dir):
+            stats = convert_dds_to_png(tex_dir, tex_dir, skip_existing=True)
+            result["dds_png"] = stats
 
     return result

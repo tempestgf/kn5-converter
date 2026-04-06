@@ -4,8 +4,8 @@ build-backend = "hatchling.build"
 
 [project]
 name = "kn5-converter"
-version = "0.1.0"
-description = "Convierte modelos KN5 (Assetto Corsa) a OBJ/MTL o GLB"
+version = "0.2.0"
+description = "Convierte modelos KN5 (Assetto Corsa) a OBJ/MTL o GLB; incluye DDS a PNG"
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.10"
@@ -13,16 +13,17 @@ authors = [{ name = "Basado en el conversor kn5 de Chipicao / AssettoServer" }]
 keywords = ["assetto-corsa", "kn5", "obj", "glb", "gltf", "3d"]
 dependencies = [
     "numpy>=1.20",
+    "pillow>=9.0.0",
 ]
 
 [project.optional-dependencies]
 glb = [
     "trimesh>=4.0.0",
-    "pillow>=9.0.0",
 ]
 
 [project.scripts]
 kn5-convert = "kn5_converter.cli:main"
+dds-convert = "kn5_converter.dds_cli:main"
 
 [tool.hatch.build.targets.wheel]
 packages = ["kn5_converter"]

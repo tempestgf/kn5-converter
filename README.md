@@ -5,8 +5,8 @@ Herramienta en Python para convertir modelos **KN5** (Assetto Corsa) a **OBJ/MTL
 ## Requisitos
 
 - Python 3.10 o superior
-- `numpy` (siempre)
-- `trimesh` y `Pillow` solo si quieres salida **GLB** (`pip install 'kn5-converter[glb]'`)
+- `numpy` y **Pillow** (texturas DDS → PNG y lectura DDS en general)
+- `trimesh` solo si quieres salida **GLB** (`pip install 'kn5-converter[glb]'`)
 
 ## Instalación
 
@@ -32,6 +32,15 @@ pip install '.[glb]'
 kn5-convert ruta/al/modelo.kn5 -o ./salida -f obj
 kn5-convert ruta/al/modelo.kn5 -o ./salida -f glb    # requiere [glb]
 kn5-convert ruta/al/modelo.kn5 -f both              # OBJ + GLB
+kn5-convert modelo.kn5 -o ./salida --dds-to-png    # + PNG junto a cada .dds en salida/texture
+```
+
+**DDS ↔ PNG** (misma lógica que `web-panel/src/scripts/dds2png.py` del panel, solo CLI; sin GUI):
+
+```bash
+dds-convert --source ./carpeta_con_dds --output ./misma_o_otra_carpeta --skip-existing
+dds-convert ./una_sola_carpeta   # conversión in-place (origen = destino)
+dds-convert --mode png2dds --source ./pngs --output ./dds_salida
 ```
 
 **Carpeta de coche** (convierte todos los `.kn5` candidatos, excluyendo `collider`, LOD y variantes `_B`/`_C`/`_D`):
@@ -51,10 +60,12 @@ kn5-convert modelo.kn5 -v
 **API en Python**
 
 ```python
-from kn5_converter import convert_kn5
+from kn5_converter import convert_kn5, convert_dds_to_png
 
-result = convert_kn5("mi_coche.kn5", export_format="both", verbose=False)
-print(result["output_dir"], result.get("obj"), result.get("glb"))
+result = convert_kn5("mi_coche.kn5", export_format="both", dds_to_png=True)
+print(result.get("dds_png"))  # converted / skipped / errors
+
+convert_dds_to_png("ruta/texture", "ruta/texture", skip_existing=True)
 ```
 
 ## Limitaciones
